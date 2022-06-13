@@ -11,8 +11,9 @@ CATEGORY_NAME: Final[str] = str(uuid4())
 CATEGORY_NAMES: Final[List[str]] = [str(uuid4()) for _ in range(3)]
 
 
+@pytest.mark.usefixtures("fixt_init_db")
 class TestInsert:
-    def test_normal(self, fixt_init_db: None) -> None:
+    def test_normal(self) -> None:
         with db_session:
             models.Category.insert(CATEGORY_NAME)
 
@@ -22,13 +23,13 @@ class TestInsert:
             assert db_category.name == CATEGORY_NAME
             assert db_category.jobs == set()
 
-    def test_exc_same_pk_inside_txn(self, fixt_init_db: None) -> None:
+    def test_exc_same_pk_inside_txn(self) -> None:
         with db_session:
             with pytest.raises(models.CRUDException):
                 models.Category.insert(CATEGORY_NAME)
                 models.Category.insert(CATEGORY_NAME)
 
-    def test_exc_same_pk_separate_txn(self, fixt_init_db: None) -> None:
+    def test_exc_same_pk_separate_txn(self) -> None:
         # OK
         with db_session:
             models.Category.insert(CATEGORY_NAME)
@@ -39,6 +40,7 @@ class TestInsert:
                 models.Category.insert(CATEGORY_NAME)
 
 
+@pytest.mark.usefixtures("fixt_init_db")
 class TestSelect:
     def register_categories(self, category_names: List[str]) -> None:
         with db_session:
@@ -64,20 +66,20 @@ class TestSelect:
                 assert type(db_category) is models.Category
                 assert db_category.name == expected_category_name
 
-    def test_all_normal_data_empty(self, fixt_init_db: None) -> None:
+    def test_all_normal_data_empty(self) -> None:
         self.validate_all([])
 
-    def test_all_normal_data_exists(self, fixt_init_db: None) -> None:
+    def test_all_normal_data_exists(self) -> None:
         self.register_categories(CATEGORY_NAMES)
         self.validate_all(CATEGORY_NAMES)
 
-    def test_one_by_name_normal_data_empty(self, fixt_init_db: None) -> None:
+    def test_one_by_name_normal_data_empty(self) -> None:
         self.validate_one_by_name("nothing", None)
 
-    def test_one_by_name_normal_data_exists(self, fixt_init_db: None) -> None:
+    def test_one_by_name_normal_data_exists(self) -> None:
         self.register_categories(CATEGORY_NAMES)
         for category_name in CATEGORY_NAMES:
             self.validate_one_by_name(category_name, category_name)
 
-    def test_one_by_name_normal_data_missing(self, fixt_init_db: None) -> None:
+    def test_one_by_name_normal_data_missing(self) -> None:
         self.validate_one_by_name(str(uuid4()), None)

@@ -13,6 +13,7 @@ JOB_NAME: Final[str] = str(uuid4())
 JOB_NAMES: Final[List[str]] = [str(uuid4()) for _ in range(3)]
 
 
+@pytest.mark.usefixtures("fixt_init_db")
 class TestInsert:
     def validate_registered_job(
         self, expected_job_name: str, expected_category_name: str | None
@@ -39,13 +40,13 @@ class TestInsert:
                 assert db_job.category.name == expected_category_name
                 assert len(db_job.category.jobs) == 1
 
-    def test_normal_without_category(self, fixt_init_db: None) -> None:
+    def test_normal_without_category(self) -> None:
         with db_session:
             models.Job.insert(JOB_NAME)
 
         self.validate_registered_job(JOB_NAME, None)
 
-    def test_normal_with_category(self, fixt_init_db: None) -> None:
+    def test_normal_with_category(self) -> None:
         # カテゴリー登録
         with db_session:
             models.Category.insert(CATEGORY_NAME)
@@ -56,13 +57,13 @@ class TestInsert:
 
         self.validate_registered_job(JOB_NAME, CATEGORY_NAME)
 
-    def test_exc_same_job_inside_txn(self, fixt_init_db: None) -> None:
+    def test_exc_same_job_inside_txn(self) -> None:
         with db_session:
             with pytest.raises(models.DataAlreadyExistsError):
                 models.Job.insert(JOB_NAME)
                 models.Job.insert(JOB_NAME)
 
-    def test_exc_same_job_separate_txn(self, fixt_init_db: None) -> None:
+    def test_exc_same_job_separate_txn(self) -> None:
         with db_session:
             models.Job.insert(JOB_NAME)
 
@@ -70,7 +71,7 @@ class TestInsert:
             with pytest.raises(models.DataAlreadyExistsError):
                 models.Job.insert(JOB_NAME)
 
-    def test_exc_same_job_and_category_inside_txn(self, fixt_init_db: None) -> None:
+    def test_exc_same_job_and_category_inside_txn(self) -> None:
         # カテゴリー登録
         with db_session:
             models.Category.insert(CATEGORY_NAME)
@@ -81,7 +82,7 @@ class TestInsert:
                 models.Job.insert(JOB_NAME, db_category)
                 models.Job.insert(JOB_NAME, db_category)
 
-    def test_exc_same_job_and_category_separate_txn(self, fixt_init_db: None) -> None:
+    def test_exc_same_job_and_category_separate_txn(self) -> None:
         # カテゴリー登録
         with db_session:
             models.Category.insert(CATEGORY_NAME)
@@ -96,6 +97,7 @@ class TestInsert:
                 models.Job.insert(JOB_NAME, db_category)
 
 
+@pytest.mark.usefixtures("fixt_init_db")
 class TestSelect:
     def register_categories_jobs(
         self,
@@ -103,7 +105,7 @@ class TestSelect:
         job_names: List[str],
         *,
         registers_category_none: bool = False
-    ):
+    ) -> None:
         with db_session:
             for category_name in category_names:
                 models.Category.insert(category_name)
@@ -143,13 +145,13 @@ class TestSelect:
                 if expected_category_name is None:
                     job_id = select(
                         j.id
-                        for j in models.Job
+                        for j in models.Job  # type: ignore[attr-defined]
                         if j.name == expected_job_name and j.category is None
                     ).get()
                 else:
                     job_id = select(
                         j.id
-                        for j in models.Job
+                        for j in models.Job  # type: ignore[attr-defined]
                         if j.name == expected_job_name
                         and j.category.name == expected_category_name
                     ).get()
@@ -165,17 +167,17 @@ class TestSelect:
                 else:
                     assert db_job.category.name == expected_category_name
 
-    def test_all_normal_data_empty(self, fixt_init_db: None) -> None:
+    def test_all_normal_data_empty(self) -> None:
         self.validate_all([], [])
 
-    def test_all_normal_data_exists(self, fixt_init_db: None) -> None:
+    def test_all_normal_data_exists(self) -> None:
         self.register_categories_jobs(CATEGORY_NAMES, JOB_NAMES)
         self.validate_all(CATEGORY_NAMES, JOB_NAMES)
 
-    def test_one_by_id_normal_data_empty(self, fixt_init_db: None) -> None:
+    def test_one_by_id_normal_data_empty(self) -> None:
         self.validate_one(None, None, job_id=999)
 
-    def test_one_by_id_normal_data_exists(self, fixt_init_db: None) -> None:
+    def test_one_by_id_normal_data_exists(self) -> None:
         self.register_categories_jobs(
             CATEGORY_NAMES, JOB_NAMES, registers_category_none=True
         )
@@ -184,7 +186,7 @@ class TestSelect:
                 self.validate_one(category_name, job_name)
             self.validate_one(None, job_name)
 
-    def test_one_by_id_normal_data_missing(self, fixt_init_db: None) -> None:
+    def test_one_by_id_normal_data_missing(self) -> None:
         self.register_categories_jobs(
             CATEGORY_NAMES, JOB_NAMES, registers_category_none=True
         )

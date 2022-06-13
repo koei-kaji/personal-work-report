@@ -60,7 +60,7 @@ class Category(db.Entity):  # type: ignore[misc]
             List[Category]: All categories ordered by category name
         """
         return cast(
-            List[cls],
+            List[Category],
             cls.select().order_by(lambda x: x.name)[:],
         )
 
