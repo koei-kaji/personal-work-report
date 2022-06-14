@@ -32,7 +32,7 @@ class Category:
             raise LogicException from error
 
     @staticmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def acquire_all() -> List[view_models.Category]:
         """Acquire all categories and convert to view model
 
@@ -74,10 +74,10 @@ class Job:
                 models.Job.insert(job_name, db_category)
 
         except (TransactionIntegrityError, models.CRUDException) as error:
-            raise LogicException from error
+            raise LogicException(error) from error
 
     @staticmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def acquire_all() -> List[view_models.Job]:
         """Acquire all jobs and convert to view model
 
@@ -144,7 +144,7 @@ class JobRecord:
         return db_job
 
     @classmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def register(cls, job_id: int, start: datetime, end: datetime) -> None:
         """Register a job record.
 
@@ -160,15 +160,11 @@ class JobRecord:
 
         start = cls.__replace_second_0(start)
         end = cls.__replace_second_0(end)
-        try:
-            db_job = cls.__judge_if_can_upsert_and_get_job(job_id, start, end)
-        except LogicException:
-            raise
-        else:
-            models.JobRecord.insert(db_job, start, end)
+        db_job = cls.__judge_if_can_upsert_and_get_job(job_id, start, end)
+        models.JobRecord.insert(db_job, start, end)
 
     @classmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def revise(
         cls, job_record_id: int, job_id: int, start: datetime, end: datetime
     ) -> None:
@@ -192,15 +188,11 @@ class JobRecord:
 
         start = cls.__replace_second_0(start)
         end = cls.__replace_second_0(end)
-        try:
-            db_job = JobRecord.__judge_if_can_upsert_and_get_job(job_id, start, end)
-        except LogicException:
-            raise
-        else:
-            models.JobRecord.update(db_job_record, db_job, start, end)
+        db_job = JobRecord.__judge_if_can_upsert_and_get_job(job_id, start, end)
+        models.JobRecord.update(db_job_record, db_job, start, end)
 
     @classmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def start(cls, job_id: int) -> None:
         """Start a job record specified by job id.
 
@@ -221,15 +213,11 @@ class JobRecord:
             )
 
         start = cls.__replace_second_0(datetime.now())
-        try:
-            db_job = cls.__judge_if_can_upsert_and_get_job(job_id, start)
-        except LogicException:
-            raise
-        else:
-            models.JobRecord.insert(db_job, start)
+        db_job = cls.__judge_if_can_upsert_and_get_job(job_id, start)
+        models.JobRecord.insert(db_job, start)
 
     @classmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def stop(cls, job_record_id: int) -> None:
         """Stop a job record specified by job record id.
 
@@ -252,7 +240,7 @@ class JobRecord:
 
     # TODO: docstring
     @classmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def acquire_all_finished_by_date(cls, __date: date) -> List[view_models.JobRecord]:
         db_job_records = models.JobRecord.select_all_finished_by_date(__date)
         return [
@@ -262,7 +250,7 @@ class JobRecord:
 
     # TODO: docstring
     @classmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def acquire_one_in_progress_by_date(
         cls, __date: date
     ) -> view_models.JobRecord | None:
@@ -276,13 +264,13 @@ class JobRecord:
 class Note:
     # TODO: docstring
     @classmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def save(cls, __date: date, content: str) -> None:
         models.Note.upsert(__date, content)
 
     # TODO: docstring
     @classmethod
-    @db_session(serializable=True, strict=True)
+    @db_session(serializable=True, strict=True)  # type: ignore[misc]
     def acquire_one_by_date(cls, __date: date) -> view_models.Note | None:
         db_note = models.Note.select_one_by_date(__date)
         if db_note is None:
