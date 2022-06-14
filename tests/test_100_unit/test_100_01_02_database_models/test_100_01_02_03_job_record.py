@@ -141,9 +141,7 @@ class TestSelect:
 
             db_jobs = models.Job.select()[:]
             for db_job in db_jobs:
-                start = datetime.combine(__date, datetime.now().time()) + timedelta(
-                    minutes=random.randint(1, 59)
-                )
+                start = datetime.combine(__date, datetime.now().time())
                 end = start + timedelta(minutes=1) if is_finished else None
                 models.JobRecord.insert(db_job, start, end)
 
@@ -163,9 +161,10 @@ class TestSelect:
             models.Job.insert(job_name)
 
             db_job = models.Job.get()
-            start = datetime.combine(__date, datetime.now().time()) + timedelta(
-                minutes=random.randint(1, 59)
-            )
+            # start = datetime.combine(__date, datetime.now().time()) + timedelta(
+            #     minutes=random.randint(1, 59)
+            # )
+            start = datetime.combine(__date, datetime.now().time())
             end = start + timedelta(minutes=1) if is_finished else None
             models.JobRecord.insert(db_job, start, end)
 
