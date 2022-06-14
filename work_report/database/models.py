@@ -85,6 +85,7 @@ class Job(db.Entity):  # type: ignore[misc]
     job_records = Set("JobRecord")
     composite_key(name, category)
 
+    # TODO: docstring修正
     @classmethod
     def insert(cls, name: str, category: Category | None = None) -> None:
         """Insert a job to the database.
