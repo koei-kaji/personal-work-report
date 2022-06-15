@@ -59,6 +59,7 @@ def timeline_chart(
         y="job",
         color="status",
     )
+    fig.update_yaxes(autorange="reversed")
 
     selected_date = storage.get_selected_date()
     scheduled_working_time: Tuple[time, time] = storage.get_state(
