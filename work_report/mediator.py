@@ -3,10 +3,9 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from . import logic, session_storage
+from . import locale, logic, session_storage
 from .config import DatabaseSettings
 from .database.database import DatabaseSingleton
-from .locale import LanguageJP
 
 # init database
 settings = DatabaseSettings()
@@ -37,7 +36,7 @@ class Mediator(BaseModel):
         self.storage.set_note(logic.Note.acquire_one_by_date(selected_date))
 
         # デフォルト言語設定
-        self.storage.set_language(LanguageJP())
+        self.__change_language()
 
         # 初期化
         self.__init_message_area()
@@ -46,6 +45,13 @@ class Mediator(BaseModel):
         self.__change_state_job_timer()
         self.__change_state_job_creation()
         self.__change_state_job_addition_manually()
+
+    def __change_language(self) -> None:
+        language = self.storage.get_state(self.storage.key_language_selection.selectbox)
+        if language:
+            self.storage.set_language(language)
+        else:
+            self.storage.set_language(locale.LanguageEN())
 
     def __change_state_job_timer(self) -> None:
         disabled_selectbox: bool = True

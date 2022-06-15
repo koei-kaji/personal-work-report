@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any, Dict
 
 from pydantic import BaseSettings
@@ -7,7 +6,7 @@ from pydantic import BaseSettings
 class DatabaseSettings(BaseSettings):
     # NOTE: https://docs.ponyorm.org/api_reference.html?highlight=create_db#supported-databases
     provider: str = "sqlite"
-    filename: str = str(Path(__file__).parent / "sqlite.db")
+    filename: str = "../sqlite.db"
     create_db: bool = True
     create_tables: bool = True
 

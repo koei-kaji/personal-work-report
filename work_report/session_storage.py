@@ -5,7 +5,7 @@ from typing import Any, List, cast
 from pydantic import BaseModel, PrivateAttr
 from streamlit.state import SessionStateProxy
 
-from .locale import Language
+from . import locale
 from .view_models import Category, Job, JobRecord, Note
 
 
@@ -78,6 +78,11 @@ class KeyNoteArea(str, Enum):
     button = f"{__base}_button"
 
 
+class KeyLanguageSelection(str, Enum):
+    __base = "language_selection"
+    selectbox = f"{__base}_selectbox"
+
+
 class RadioJobCreation(str, Enum):
     job = "job"
     category = "category"
@@ -98,6 +103,7 @@ class SessionStorage(BaseModel):
     key_job_creation: KeyJobCreation = KeyJobCreation  # type: ignore[assignment]
     key_job_logs: KeyJobLogs = KeyJobLogs  # type: ignore[assignment]
     key_note_area: KeyNoteArea = KeyNoteArea  # type: ignore[assignment]
+    key_language_selection: KeyLanguageSelection = KeyLanguageSelection  # type: ignore[assignment]
 
     job_creation_radio_values: List[str] = RadioJobCreation.get_values()
 
@@ -107,7 +113,7 @@ class SessionStorage(BaseModel):
     __job_record_in_progress: JobRecord | None = PrivateAttr()
     __categories: List[Category] = PrivateAttr()
     __note: Note | None = PrivateAttr()
-    __language: Language = PrivateAttr()
+    __language: locale.Language = PrivateAttr()
 
     def init_state(self, key: str, value: Any) -> None:
         if key not in self.state:
@@ -155,11 +161,14 @@ class SessionStorage(BaseModel):
     def get_note(self) -> Note | None:
         return self.__note
 
-    def set_language(self, language: Language) -> None:
+    def set_language(self, language: locale.Language) -> None:
         self.__language = language
 
-    def get_language(self) -> Language:
+    def get_language(self) -> locale.Language:
         return self.__language
+
+    def get_languages(self) -> List[locale.Language]:
+        return [locale.LanguageEN(), locale.LanguageJP()]
 
     class Config:
         allow_mutation = False

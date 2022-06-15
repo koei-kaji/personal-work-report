@@ -12,16 +12,17 @@ mediator = Mediator(storage=storage)
 
 # --------- init streamlit-------------- #
 st.set_page_config(page_title=storage.get_language().main_page_title, layout="wide")
-st.title(storage.get_language().main_title)
-
 
 # --------- construct -------------- #
 # TODO: configで読み込んで配置をカスタマイズできるようにする
+row_0 = st.columns([9, 1])
 row_1 = st.columns([1])
 row_2 = st.columns([1, 1])
 row_3 = st.columns([2, 1])
 row_4 = st.columns([1, 1])
 
+row_0[0].title(storage.get_language().main_title)
+col.language_selection(row_0[1], storage)
 col.message_area(row_1[0], storage, mediator)
 col.date_selection(row_2[0], storage, mediator)
 col.working_hours_schedule(row_2[1], storage)
