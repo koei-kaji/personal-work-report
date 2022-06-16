@@ -105,6 +105,8 @@ class SessionStorage(BaseModel):
     key_note_area: KeyNoteArea = KeyNoteArea  # type: ignore[assignment]
     key_language_selection: KeyLanguageSelection = KeyLanguageSelection  # type: ignore[assignment]
 
+    job_creation_radio_values: List[str] = RadioJobCreation.get_values()
+
     # NOTE: mediatorによって設定される
     __jobs: List[Job] = PrivateAttr()
     __job_records: List[JobRecord] = PrivateAttr()
